@@ -8,7 +8,7 @@ const { validateFollow, validateUnfollow } = require('../middlewares/followMiddl
 
 const { schemaUser } = require('../schemas/user.schema')// Esquema de validación para la creación de un usuario
 
-const { User } = require('../db/models') // Importamos el modelo de User para usarlo en el middleware de validación de existencia
+const User = require('../db/models/User') // Importamos el modelo de User para usarlo en el middleware de validación de existencia
 
 const router = Router()
 

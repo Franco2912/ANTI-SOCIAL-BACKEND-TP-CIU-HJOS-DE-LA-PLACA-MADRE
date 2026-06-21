@@ -5,13 +5,13 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 
 
-const postRoutes = require('./routes/post.routes');
-const userRoutes = require('./routes/user.routes');
-const commentRoutes = require('./routes/comment.routes');
+const postRoutes = require('./routes/router.post');
+const userRoutes = require('./routes/router.user');
+const commentRoutes = require('./routes/router.comment');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/unahur-red-social';
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/unahur-red-social';
 
 app.use(cors());
 app.use(express.json());
@@ -31,7 +31,7 @@ mongoose.connect(MONGO_URI)
         
         // Levanta el servidor Express SÓLO si la base de datos conectó correctamente
         app.listen(PORT, () => {
-            console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
+            console.log(`Servidor corriendo en http://localhost:${PORT}`);
         });
     })
     .catch((error) => {

@@ -2,7 +2,7 @@ const https = require('node:https');
 const fs = require('node:fs');
 const fsPromises = require('node:fs/promises')
 const path = require('node:path');
-const { PostImage } = require('../db/models');
+const postRepository = require('../repositories/post.repository');
 
 
 const descargarImagen = (url, nombreArchivo) => {
@@ -46,17 +46,17 @@ const eliminarImagen = async (urlImagen) =>{
 }
 
 const eliminarTodasLasImagenesDePostId = async (postId) => {
+    const post = await postRepository.obtenerPorId(postId);
 
-    const images = await PostImage.findAll({
-        where:{
-            idPost : postId
-        }
-    })
-
-    for (const img of images){
-        await eliminarImagen(img.url)
+    if (!post || !post.images || post.images.length === 0) {
+        return;
     }
 
+    for (const img of post.images) {
+        await eliminarImagen(img.url);
+    }
+
+    await postRepository.eliminarTodasLasImagenes(postId);
 }
 
 module.exports = {

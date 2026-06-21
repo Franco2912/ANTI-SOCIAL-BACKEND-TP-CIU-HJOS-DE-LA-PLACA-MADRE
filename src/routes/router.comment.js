@@ -3,7 +3,8 @@ const { getCommentsByPost, postCommentByPost, putCommentByPost, deleteCommentByP
 const { validarCreateComment, validarUpdateComment } = require('../middlewares/commentMiddleware')
 const { validateExistsModel } = require('../middlewares/genericMiddleware')
 
-const { Post, Comment } = require('../db/models')
+const Post = require('../db/models/Post')
+const Comment = require('../db/models/Comment')
 
 const router = Router()
 

@@ -19,9 +19,9 @@ const {
     unlinkTag,
 } = require('../controllers/post.controllers')
 
-const { validateExistsModel, validarTagByName } = require('../middlewares/validators')
-const { validatePutImage } = requiere('../middlewares/validateImage')
-const { sanitizeTagName } = require('../middlewares/tag.sanitizer')
+const { validateExistsModel, validarTagByName } = require('../middlewares/genericMiddleware')
+const { validatePutImage } = require('../middlewares/validateImage')
+const { sanitizeTagName } = require('../middlewares/tagMiddleware')
 const schemaValidator = require('../middlewares/schemaValidator')
 const { schemaPost } = require('../schemas/postSchema')
 
