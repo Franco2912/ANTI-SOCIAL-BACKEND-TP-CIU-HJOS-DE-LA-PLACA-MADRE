@@ -1,0 +1,16 @@
+{
+  "idPost": 1,
+  "idUser": 1,
+  "descripcion": "Post de ejemplo del usuario 1.",
+  "createdAt": "2026-05-17T02:06:07.000Z",
+  "updatedAt": "2026-05-17T02:06:07.000Z",
+  "Images": [
+    {
+      "idPostImage": 1,
+      "idPost": 1,
+      "url": "https://example.com/images/foto1.jpg",
+      "createdAt": "2026-05-17T03:00:00.000Z",
+      "updatedAt": "2026-05-17T03:00:00.000Z"
+    }
+  ]
+}

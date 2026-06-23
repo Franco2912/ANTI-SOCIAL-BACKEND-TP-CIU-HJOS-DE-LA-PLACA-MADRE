@@ -1,0 +1,22 @@
+{
+  "data": [
+    {
+      "idTag": 1,
+      "nombre": "javascript",
+      "createdAt": "2026-05-17T04:00:00.000Z",
+      "updatedAt": "2026-05-17T04:00:00.000Z"
+    },
+    {
+      "idTag": 2,
+      "nombre": "nodejs",
+      "createdAt": "2026-05-17T04:01:00.000Z",
+      "updatedAt": "2026-05-17T04:01:00.000Z"
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 20,
+    "total": 2,
+    "totalPages": 1
+  }
+}

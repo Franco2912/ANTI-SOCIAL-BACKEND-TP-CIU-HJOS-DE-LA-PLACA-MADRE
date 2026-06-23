@@ -1,0 +1,15 @@
+{
+    "nickName": "nicod",
+    "nombre": "Nicolás",
+    "apellido": "Diorio",
+    "Followers": [
+    {
+        "nickName": "jdoe"
+    }
+    ],
+    "Following": [
+    {
+        "nickName": "jdoe"
+    }
+    ]
+}

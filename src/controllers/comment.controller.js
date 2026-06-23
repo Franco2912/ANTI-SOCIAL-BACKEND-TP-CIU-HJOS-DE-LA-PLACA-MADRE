@@ -7,11 +7,11 @@ const getCommentsByPost = async (req, res) => {
         const cachekey = `comments_${post_id}`;
 
         const cachedComments = appCache.get(cachekey);
-        if (cachedComments) {
+      /*  if (cachedComments) {
         console.log(`[Cache Hit]: Comentarios para el post con id ${post_id} desde la memoria RAM`);
         return res.status(200).json(cachedComments);
         }
-
+        */
         console.log(`[Cache Miss]: Consultando a la base de datos de MongoDB...`);
 
         const comments = await commentRepository.obtenerPorPost(post_id);

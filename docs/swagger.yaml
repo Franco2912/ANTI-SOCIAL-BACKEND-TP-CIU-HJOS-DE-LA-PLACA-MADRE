@@ -1,0 +1,1022 @@
+openapi: 3.0.3
+info:
+  title: UnaHur Anti-Social Net API
+  description: |
+    API REST del backend para la red social "UnaHur Anti-Social Net".
+    Permite gestionar usuarios, publicaciones, imágenes, etiquetas y comentarios.
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:3000
+    description: Servidor local de desarrollo
+
+tags:
+  - name: Usuarios
+    description: Operaciones CRUD sobre usuarios registrados
+  - name: Posts
+    description: Operaciones CRUD sobre publicaciones
+  - name: Imágenes
+    description: Gestión de imágenes asociadas a un post
+  - name: Tags
+    description: Etiquetas globales y asociadas a posts
+  - name: Comentarios
+    description: Comentarios sobre publicaciones
+
+paths:
+  /usuarios:
+    get:
+      tags: [Usuarios]
+      summary: Listar todos los usuarios
+      operationId: getAllUsers
+      responses:
+        '200':
+          description: Lista de usuarios
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /usuario:
+    post:
+      tags: [Usuarios]
+      summary: Crear un usuario
+      operationId: postUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserInput'
+      responses:
+        '201':
+          description: Usuario creado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /usuario/{id}:
+    parameters:
+      - $ref: '#/components/parameters/UserId'
+    get:
+      tags: [Usuarios]
+      summary: Obtener un usuario por ID
+      operationId: getUserById
+      responses:
+        '200':
+          description: Usuario encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/InvalidId'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    put:
+      tags: [Usuarios]
+      summary: Actualizar un usuario
+      operationId: putUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserInput'
+      responses:
+        '200':
+          description: Usuario actualizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    delete:
+      tags: [Usuarios]
+      summary: Eliminar un usuario
+      operationId: deleteUser
+      responses:
+        '200':
+          description: Usuario eliminado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '400':
+          $ref: '#/components/responses/InvalidId'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /usuario/{id}/posts:
+    parameters:
+      - $ref: '#/components/parameters/UserId'
+    get:
+      tags: [Usuarios]
+      summary: Obtener los posts de un usuario
+      description: Devuelve los posts del usuario con imágenes, tags y comentarios incluidos.
+      operationId: getPostsByUserId
+      responses:
+        '200':
+          description: Lista de posts del usuario
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PostWithRelations'
+        '400':
+          $ref: '#/components/responses/InvalidId'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /posts:
+    get:
+      tags: [Posts]
+      summary: Listar todos los posts
+      description: Devuelve todos los posts con imágenes, tags y comentarios incluidos.
+      operationId: getAllPosts
+      responses:
+        '200':
+          description: Lista de posts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PostWithRelations'
+        '404':
+          description: Error del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /post:
+    post:
+      tags: [Posts]
+      summary: Crear un post
+      operationId: postNewPost
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostInput'
+      responses:
+        '201':
+          description: Post creado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /post/{postId}:
+    parameters:
+      - $ref: '#/components/parameters/PostId'
+    get:
+      tags: [Posts]
+      summary: Obtener un post por ID
+      description: Devuelve el post con sus imágenes incluidas.
+      operationId: getPostById
+      responses:
+        '200':
+          description: Post encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostWithImages'
+        '400':
+          $ref: '#/components/responses/InvalidId'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /posts/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: ID del post
+        schema:
+          type: integer
+          minimum: 1
+    put:
+      tags: [Posts]
+      summary: Actualizar un post
+      operationId: putPost
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostInput'
+      responses:
+        '200':
+          description: Post actualizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    delete:
+      tags: [Posts]
+      summary: Eliminar un post
+      operationId: deletePost
+      responses:
+        '200':
+          description: Post eliminado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '400':
+          $ref: '#/components/responses/InvalidId'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /post/{postId}/images:
+    parameters:
+      - $ref: '#/components/parameters/PostId'
+    get:
+      tags: [Imágenes]
+      summary: Listar imágenes de un post
+      operationId: getAllImages
+      responses:
+        '200':
+          description: Lista de imágenes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PostImage'
+        '400':
+          $ref: '#/components/responses/InvalidId'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    post:
+      tags: [Imágenes]
+      summary: Agregar imágenes a un post
+      operationId: postImages
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostImageInput'
+      responses:
+        '201':
+          description: Imágenes agregadas
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    delete:
+      tags: [Imágenes]
+      summary: Eliminar todas las imágenes de un post
+      operationId: deleteAllImages
+      responses:
+        '200':
+          description: Imágenes eliminadas
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '400':
+          $ref: '#/components/responses/InvalidId'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /post/{postId}/images/{imageId}:
+    parameters:
+      - $ref: '#/components/parameters/PostId'
+      - name: imageId
+        in: path
+        required: true
+        description: ID de la imagen
+        schema:
+          type: integer
+          minimum: 1
+    get:
+      tags: [Imágenes]
+      summary: Obtener una imagen de un post
+      operationId: getImageById
+      responses:
+        '200':
+          description: Imagen encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostImage'
+        '400':
+          $ref: '#/components/responses/InvalidId'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    put:
+      tags: [Imágenes]
+      summary: Actualizar una imagen de un post
+      operationId: putImages
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostImageInput'
+      responses:
+        '200':
+          description: URL de la imagen actualizada
+          content:
+            application/json:
+              schema:
+                type: string
+                format: uri
+              example: https://example.com/images/nueva-foto.jpg
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    delete:
+      tags: [Imágenes]
+      summary: Eliminar una imagen de un post
+      operationId: deleteImage
+      responses:
+        '200':
+          description: Imagen eliminada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '400':
+          $ref: '#/components/responses/InvalidId'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /posts/{postId}/tags:
+    parameters:
+      - $ref: '#/components/parameters/PostId'
+    get:
+      tags: [Tags]
+      summary: Listar tags de un post
+      operationId: getAllTagsByPostId
+      responses:
+        '200':
+          description: Lista de tags del post
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Tag'
+        '400':
+          $ref: '#/components/responses/InvalidId'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    post:
+      tags: [Tags]
+      summary: Agregar un tag a un post
+      description: |
+        El nombre del tag se normaliza automáticamente: se recorta, convierte a minúsculas
+        y los espacios se reemplazan por guiones. Si el tag no existe, se crea.
+      operationId: addTag
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TagInput'
+      responses:
+        '200':
+          description: Tag ya existía en el post o tag existente agregado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TagAddedResponse'
+        '201':
+          description: Tag nuevo creado y agregado al post
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TagAddedResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /posts/{postId}/tags/{tagName}:
+    parameters:
+      - $ref: '#/components/parameters/PostId'
+      - name: tagName
+        in: path
+        required: true
+        description: Nombre del tag (se normaliza igual que en POST)
+        schema:
+          type: string
+    delete:
+      tags: [Tags]
+      summary: Desvincular un tag de un post
+      description: Si el tag deja de estar asociado a ningún post, se elimina de la base de datos.
+      operationId: unlinkTag
+      responses:
+        '200':
+          description: Tag desvinculado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TagUnlinkedResponse'
+        '400':
+          $ref: '#/components/responses/InvalidId'
+        '404':
+          description: Post o tag no encontrado
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/ErrorResponse'
+                  - $ref: '#/components/schemas/ErrorMessageResponse'
+        '409':
+          description: El tag no está vinculado al post
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: El tag no está vinculado a este post
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /tags:
+    get:
+      tags: [Tags]
+      summary: Listar todos los tags
+      description: Soporta paginación y filtro por nombre (parcial, case-insensitive).
+      operationId: getAllTags
+      parameters:
+        - name: nombre
+          in: query
+          description: Filtrar tags por nombre (también acepta `name`)
+          schema:
+            type: string
+        - name: name
+          in: query
+          description: Alias de `nombre`
+          schema:
+            type: string
+        - name: page
+          in: query
+          description: Número de página (default 1)
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          description: Cantidad por página (default 20, máximo 100)
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        '200':
+          description: Tags paginados
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TagPaginatedResponse'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /v1/posts/{post_id}/comments:
+    parameters:
+      - name: post_id
+        in: path
+        required: true
+        description: ID del post
+        schema:
+          type: integer
+          minimum: 1
+    get:
+      tags: [Comentarios]
+      summary: Listar comentarios de un post
+      description: Incluye datos del usuario autor. Ordenados por fecha de creación descendente.
+      operationId: getCommentsByPost
+      responses:
+        '200':
+          description: Lista de comentarios
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CommentWithUser'
+        '404':
+          description: Post no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: Post no encontrado
+        '500':
+          $ref: '#/components/responses/ServerError'
+    post:
+      tags: [Comentarios]
+      summary: Crear un comentario en un post
+      operationId: postCommentByPost
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommentInput'
+      responses:
+        '201':
+          description: Comentario creado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+        '400':
+          description: Error de validación
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/CommentValidationError'
+                  - $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Post o usuario no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /v1/posts/{post_id}/comments/{comment_id}:
+    parameters:
+      - name: post_id
+        in: path
+        required: true
+        description: ID del post
+        schema:
+          type: integer
+          minimum: 1
+      - name: comment_id
+        in: path
+        required: true
+        description: ID del comentario
+        schema:
+          type: integer
+          minimum: 1
+    put:
+      tags: [Comentarios]
+      summary: Actualizar un comentario
+      operationId: putCommentByPost
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommentUpdateInput'
+      responses:
+        '200':
+          description: Comentario actualizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+        '400':
+          description: Error de validación
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/CommentValidationError'
+                  - $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Post o comentario no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    delete:
+      tags: [Comentarios]
+      summary: Eliminar un comentario
+      operationId: deleteCommentByPost
+      responses:
+        '200':
+          description: Comentario eliminado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '404':
+          description: Post o comentario no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+components:
+  parameters:
+    UserId:
+      name: id
+      in: path
+      required: true
+      description: ID del usuario
+      schema:
+        type: integer
+        minimum: 1
+    PostId:
+      name: postId
+      in: path
+      required: true
+      description: ID del post
+      schema:
+        type: integer
+        minimum: 1
+
+  schemas:
+    User:
+      type: object
+      properties:
+        idUser:
+          type: integer
+          example: 1
+        nickName:
+          type: string
+          maxLength: 20
+          example: nicod
+        nombre:
+          type: string
+          maxLength: 12
+          example: Nicolás
+        apellido:
+          type: string
+          maxLength: 12
+          example: Diorio
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    UserInput:
+      type: object
+      required: [nickName, nombre, apellido]
+      properties:
+        nickName:
+          type: string
+          maxLength: 20
+          pattern: '^[a-zA-Z0-9]+$'
+          description: Solo letras y números, único en el sistema
+        nombre:
+          type: string
+          maxLength: 12
+        apellido:
+          type: string
+          maxLength: 12
+
+    Post:
+      type: object
+      properties:
+        idPost:
+          type: integer
+        idUser:
+          type: integer
+        descripcion:
+          type: string
+          minLength: 3
+          maxLength: 100
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    PostInput:
+      type: object
+      required: [idUser, descripcion]
+      properties:
+        idUser:
+          type: integer
+          minimum: 1
+        descripcion:
+          type: string
+          minLength: 3
+          maxLength: 100
+
+    PostImage:
+      type: object
+      properties:
+        idPostImage:
+          type: integer
+        idPost:
+          type: integer
+        url:
+          type: string
+          format: uri
+          maxLength: 200
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    PostImageInput:
+      type: object
+      required: [urlImages]
+      properties:
+        urlImages:
+          type: array
+          minItems: 1
+          maxItems: 10
+          uniqueItems: true
+          items:
+            type: string
+            format: uri
+            maxLength: 200
+
+    Tag:
+      type: object
+      properties:
+        idTag:
+          type: integer
+        nombre:
+          type: string
+          maxLength: 255
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    TagInput:
+      type: object
+      required: [tagName]
+      properties:
+        tagName:
+          type: string
+          minLength: 1
+          maxLength: 255
+
+    TagAddedResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        tag:
+          $ref: '#/components/schemas/Tag'
+
+    TagUnlinkedResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        tagRemoved:
+          type: boolean
+          description: true si el tag fue eliminado por no estar asociado a ningún post
+
+    TagPaginatedResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tag'
+        pagination:
+          type: object
+          properties:
+            page:
+              type: integer
+            limit:
+              type: integer
+            total:
+              type: integer
+            totalPages:
+              type: integer
+
+    Comment:
+      type: object
+      properties:
+        idComment:
+          type: integer
+        idPost:
+          type: integer
+        idUser:
+          type: integer
+        contenido:
+          type: string
+          maxLength: 255
+        visible:
+          type: boolean
+          description: Campo virtual; false si el comentario supera los 60 días
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    CommentWithUser:
+      allOf:
+        - $ref: '#/components/schemas/Comment'
+        - type: object
+          properties:
+            User:
+              type: object
+              properties:
+                idUser:
+                  type: integer
+                nickName:
+                  type: string
+                nombre:
+                  type: string
+                apellido:
+                  type: string
+
+    CommentInput:
+      type: object
+      required: [idUser, contenido]
+      properties:
+        idUser:
+          type: integer
+          minimum: 1
+        contenido:
+          type: string
+          minLength: 1
+          maxLength: 255
+
+    CommentUpdateInput:
+      type: object
+      required: [contenido]
+      properties:
+        contenido:
+          type: string
+          minLength: 1
+          maxLength: 255
+
+    PostWithImages:
+      allOf:
+        - $ref: '#/components/schemas/Post'
+        - type: object
+          properties:
+            Images:
+              type: array
+              items:
+                $ref: '#/components/schemas/PostImage'
+
+    PostWithRelations:
+      allOf:
+        - $ref: '#/components/schemas/Post'
+        - type: object
+          properties:
+            Images:
+              type: array
+              items:
+                $ref: '#/components/schemas/PostImage'
+            Tags:
+              type: array
+              items:
+                $ref: '#/components/schemas/Tag'
+            Comments:
+              type: array
+              items:
+                $ref: '#/components/schemas/Comment'
+
+    MessageResponse:
+      type: object
+      properties:
+        message:
+          type: string
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+
+    ErrorMessageResponse:
+      type: object
+      properties:
+        error_message:
+          type: string
+
+    ValidationErrorsResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: string
+
+    CommentValidationError:
+      type: object
+      properties:
+        error:
+          type: array
+          items:
+            type: object
+            properties:
+              atributo:
+                type: string
+              detalle:
+                type: string
+
+  responses:
+    ServerError:
+      description: Error interno del servidor
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: Error del servidor
+
+    NotFound:
+      description: Recurso no encontrado
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: El recurso con id 99 en el modelo User no existe
+
+    InvalidId:
+      description: ID de parámetro inválido
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: El parametro id debe ser un numero entero valido y mayor a 0
+
+    ValidationError:
+      description: Error de validación del cuerpo de la solicitud
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ValidationErrorsResponse'
+          example:
+            errors:
+              - El nickname es un campo obligatorio

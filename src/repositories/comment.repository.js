@@ -27,7 +27,8 @@ class CommentRepository {
         createdAt: { $gte: fechaLimite } // Trae solo los más nuevos que la fecha límite
         })
         .populate('idUser', 'idUser nickName') // Popula simulando los attributes del TP1
-        .sort({ createdAt: -1 }); // Reemplaza al order: [['createdAt', 'DESC']]
+        .sort({ createdAt: -1 })
+        .lean(); // Reemplaza al order: [['createdAt', 'DESC']]
     }
 
     async crear(idPost, idUser, contenido) {

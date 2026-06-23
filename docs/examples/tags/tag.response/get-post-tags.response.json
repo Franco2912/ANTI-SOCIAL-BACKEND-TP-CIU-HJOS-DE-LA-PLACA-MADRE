@@ -1,0 +1,14 @@
+[
+  {
+    "idTag": 1,
+    "nombre": "javascript",
+    "createdAt": "2026-05-17T04:00:00.000Z",
+    "updatedAt": "2026-05-17T04:00:00.000Z"
+  },
+  {
+    "idTag": 2,
+    "nombre": "nodejs",
+    "createdAt": "2026-05-17T04:01:00.000Z",
+    "updatedAt": "2026-05-17T04:01:00.000Z"
+  }
+]

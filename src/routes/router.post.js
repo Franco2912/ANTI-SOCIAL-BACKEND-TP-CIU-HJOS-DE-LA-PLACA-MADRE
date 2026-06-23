@@ -47,15 +47,15 @@ router.delete('/post/:id', validateExistsModel(Post), deletePost)
 router.get('/post/:postId/images', validateExistsModel(Post, 'postId'), getAllImages)
 
 // Obtiene una imagen específica del post
-router.get('/post/:postId/images/:imageId', validateExistsModel(Post, 'postId'), getImageById)
+router.get('/post/:postId/image/:imageId', validateExistsModel(Post, 'postId'), getImageById)
 
 // Agregar imágenes al post
 router.post('/post/:postId/images', validateExistsModel(Post, 'postId'), postImages)
 
-router.put('/post/:postId/images/:imageId', validateExistsModel(Post, 'postId'), validatePutImage, putImages)
+router.put('/post/:postId/image/:imageId', validateExistsModel(Post, 'postId'), validatePutImage, putImages)
 
 // Borra una imagen del post por id
-router.delete('/post/:postId/images/:imageId', validateExistsModel(Post, 'postId'), deleteImage)
+router.delete('/post/:postId/image/:imageId', validateExistsModel(Post, 'postId'), deleteImage)
 
 // Borra todas las imágenes de un post
 router.delete('/post/:postId/images', validateExistsModel(Post, 'postId'), deleteAllImages)

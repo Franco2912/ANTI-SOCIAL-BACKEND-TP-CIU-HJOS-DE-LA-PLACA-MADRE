@@ -1,0 +1,18 @@
+[
+  {
+    "idUser": 1,
+    "nickName": "nicod",
+    "nombre": "Nicolás",
+    "apellido": "Diorio",
+    "createdAt": "2026-05-17T02:05:52.000Z",
+    "updatedAt": "2026-05-17T02:05:52.000Z"
+  },
+  {
+    "idUser": 2,
+    "nickName": "jdoe",
+    "nombre": "Juan",
+    "apellido": "Doe",
+    "createdAt": "2026-05-17T02:05:52.000Z",
+    "updatedAt": "2026-05-17T02:05:52.000Z"
+  }
+]
