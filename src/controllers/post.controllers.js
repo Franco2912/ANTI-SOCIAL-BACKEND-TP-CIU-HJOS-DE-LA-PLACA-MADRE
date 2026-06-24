@@ -1,24 +1,14 @@
 const postRepository = require('../repositories/post.repository');
-const appCache = require('../services/cache.service');
 const { descargarImagen, eliminarImagen } = require('../services/postimages.services');
+const {setCache} = require ('../services/redis.service');
 
 // --- CONTROLADORES DE POSTS ---
 const getAllPosts = async (req, res) => {
     try {
-        const cacheKey = 'all_posts_key';
-        const cachedPosts = appCache.get(cacheKey);
-
-        if (cachedPosts) {
-        console.log('[Cache Hit]: Sirviendo los posts desde la memoria RAM');
-        res.set('X-Cache', 'HIT');
-        return res.status(200).json(cachedPosts);
-        }
-
-        console.log('[Cache Miss]: Consultando a la base de datos de MongoDB...');
         const posts = await postRepository.obtenerTodos();
 
-        appCache.set(cacheKey, posts);
-        res.set('X-Cache', 'MISS');
+        setCache(req.cacheKey, posts).catch(console.error) 
+
         return res.status(200).json(posts);
     } catch (error) {
         console.error(error);
@@ -28,22 +18,15 @@ const getAllPosts = async (req, res) => {
 
     const getPostById = async (req, res) => {
     try {
-        const { postId } = req.params;
-        const cacheKey = `post_${postId}`;
-        const cachedPost = appCache.get(cacheKey);
+        const { postId } = req.params;      
 
-        if (cachedPost) {
-        console.log(`[Cache Hit]: Sirviendo el post ${postId} desde la memoria RAM`);
-        res.set('X-Cache', 'HIT');
-        return res.status(200).json(cachedPost);
-        }
 
-        console.log(`[Cache Miss]: Consultando a la base de datos por el post ${postId}...`);
-        const post = await postRepository.obtainerPorId(postId);
+        
+        const post = await postRepository.obtenerPorId(postId);
         if (!post) return res.status(404).json({ error: 'Post no encontrado' });
-
-        appCache.set(cacheKey, post);
-        res.set('X-Cache', 'MISS');
+       
+        setCache(req.cacheKey, post).catch(console.error)
+        
         return res.status(200).json(post);
     } catch (err) {
         console.error(err);
@@ -54,8 +37,7 @@ const getAllPosts = async (req, res) => {
     const postNewPost = async (req, res) => {
     try {
         const post = await postRepository.crear(req.body);
-        appCache.del('all_posts_key');
-        console.log('[Cache Cleaned]: Se borró la caché de posts por nueva publicación');
+        
         return res.status(201).json(post);
     } catch (error) {
         console.error(error);
@@ -68,8 +50,6 @@ const getAllPosts = async (req, res) => {
         const { id } = req.params;
         const post = await postRepository.actualizar(id, req.body);
 
-        appCache.del('all_posts_key');
-        appCache.del(`post_${id}`);
         console.log(`[Cache Cleaned]: Se borró la caché de posts y del post ${id} por actualización`);
         return res.status(200).json(post);
     } catch (error) {
@@ -88,14 +68,10 @@ const getAllPosts = async (req, res) => {
         if (post.images && post.images.length > 0) {
         for (const img of post.images) {
             await eliminarImagen(img.url);
+            }
         }
-        }
-
         await postRepository.eliminar(id);
-
-        appCache.del('all_posts_key');
-        appCache.del(`post_${id}`);
-        console.log(`[Cache Cleaned]: Se borró la caché de posts y del post ${id} por eliminación`);
+       
         return res.status(200).json({ message: `el post fue eliminado` });
     } catch (error) {
         console.error(error);
@@ -109,6 +85,10 @@ const getAllPosts = async (req, res) => {
     try {
         const post = await postRepository.obtenerPorId(req.params.postId);
         if (!post) return res.status(404).json({ error: 'Post no encontrado' });
+        
+        // guardamos la lista de imagenes en el cache
+        setCache(req.cacheKey, post.images).catch(console.error);
+
         return res.status(200).json(post.images || []);
     } catch (err) {
         console.error(err);
@@ -144,11 +124,8 @@ const getAllPosts = async (req, res) => {
         }
 
         await postRepository.agregarImagenes(postId, newImages);
-        await postRepository.actualizarFechaPost(postId);
-
-        appCache.del('all_posts_key');
-        appCache.del(`post_${postId}`);
-        console.log(`[Cache Cleaned]: Se borró la caché del post ${postId} por agregar imágenes`);
+        await postRepository.actualizarFechaPost(postId);       
+      
 
         return res.status(201).json({ message: 'Fotos agregadas correctamente' });
     } catch (err) {
@@ -173,9 +150,6 @@ const getAllPosts = async (req, res) => {
         await eliminarImagen(urlVieja);
         await postRepository.actualizarFechaPost(postId);
 
-        appCache.del('all_posts_key');
-        appCache.del(`post_${postId}`);
-
         return res.status(200).json({ message: "se modifico la imagen" });
     } catch (err) {
         console.error(err);
@@ -193,10 +167,7 @@ const getAllPosts = async (req, res) => {
         await postRepository.eliminarImagen(postId, imageId);
         await eliminarImagen(image.url);
         await postRepository.actualizarFechaPost(postId);
-
-        appCache.del('all_posts_key');
-        appCache.del(`post_${postId}`);
-        console.log(`[Cache Cleaned]: Se borró la caché del post ${postId} por eliminar una imagen`);
+       
         return res.status(200).json({ message: 'Foto eliminada con éxito' });
     } catch (err) {
         console.error(err);
@@ -217,9 +188,6 @@ const getAllPosts = async (req, res) => {
         await postRepository.eliminarTodasLasImagenes(postId);
         await postRepository.actualizarFechaPost(postId);
 
-        appCache.del(`post_${postId}`);
-        appCache.del('all_posts_key');
-        console.log(`[Cache Cleaned]: Se borró la caché del post ${postId} por eliminar todas las imágenes`);
         return res.status(200).json({ message: 'Todas las fotos del posteo fueron eliminadas' });
     } catch (err) {
         console.error(err);
@@ -241,10 +209,7 @@ const getAllPosts = async (req, res) => {
 
         await postRepository.agregarTag(postId, tagName);
         await postRepository.actualizarFechaPost(postId);
-
-        appCache.del(`post_${postId}`);
-        appCache.del('all_posts_key');
-        console.log(`[Cache Cleaned]: Se borró la caché del post ${postId} por agregar un tag`);
+       
 
         return res.status(201).json({ message: 'Tag agregado al post', tag: { nombre: tagName } });
     } catch (err) {
@@ -274,11 +239,7 @@ const getAllPosts = async (req, res) => {
         }
 
         await postRepository.removerTag(postId, tagName);
-        await postRepository.actualizarFechaPost(postId);
-
-        appCache.del(`post_${postId}`);
-        appCache.del('all_posts_key');
-        console.log(`[Cache Cleaned]: Se borró la caché del post ${postId} por eliminar un tag`);
+        await postRepository.actualizarFechaPost(postId);      
 
         return res.status(200).json({ message: 'Tag desvinculado del post', tagRemoved: false });
     } catch (err) {

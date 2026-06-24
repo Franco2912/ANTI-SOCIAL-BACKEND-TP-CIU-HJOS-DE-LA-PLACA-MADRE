@@ -6,7 +6,35 @@ const redisClient = redis.createClient({
   connectTimeout: 10000,
 });
 
+const TTL = Number(process.env.CACHE_TTL_SECONDS ?? 120)
+
+const initRedis = async () => {
+    await redisClient.connect();
+    console.log("Redis conectado");
+};
+
+const setCache = async (key, data) => {
+    const result = await redisClient.set(
+        key,
+        JSON.stringify(data),
+        { EX: TTL }
+    );
+    console.log(`[Cache Set] ${key}`);
+    return result;
+};
+
+const getCache = async (key) => {
+    const data = await redisClient.get(key);
+    return data ? JSON.parse(data) : null;
+};
+
+const delCache = async (key) => {
+    console.log(`[Cache Deleted] ${key}`);
+    return redisClient.del(key);
+};
+
+
 redisClient.on("error", (err) => console.log("Redis Client Error", err));
 redisClient.on("connect", () => console.log("Redis Client connecto OK"));
 
-module.exports = redisClient;
+module.exports = {initRedis, setCache, getCache, delCache};

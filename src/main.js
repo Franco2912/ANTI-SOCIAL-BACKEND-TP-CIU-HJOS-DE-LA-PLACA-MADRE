@@ -7,7 +7,7 @@ const mongoose = require('mongoose');
 const postRoutes = require('./routes/router.post');
 const userRoutes = require('./routes/router.user');
 const commentRoutes = require('./routes/router.comment');
-const redisClient = require('./services/redis.service');
+const {initRedis} = require('./services/redis.service');
 
 const app = express();
 
@@ -33,8 +33,8 @@ async function start() {
         console.log('Conexión exitosa a MongoDB con Mongoose.')
 
        // Conexion a redis
-       await redisClient.connect()
-       console.log('Conexion exitosa a Redis.')
+       await initRedis()
+       
 
        app.listen(PORT, () => {
         console.log(`Servidor corriendo en http://localhost:${PORT}`)

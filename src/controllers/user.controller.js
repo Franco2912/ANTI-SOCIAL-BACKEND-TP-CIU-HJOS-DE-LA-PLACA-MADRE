@@ -1,8 +1,10 @@
 const userRepository = require('../repositories/user.repository');
+const { setCache } = require('../services/redis.service');
 
 const getAllUsers = async (req, res) => {
     try {
         const users = await userRepository.obtenerTodos();
+        setCache(req.cacheKey, users).catch(console.error);
         return res.status(200).json(users);
     } catch (error) {
         console.error(error);
@@ -15,6 +17,7 @@ const getAllUsers = async (req, res) => {
         const { id } = req.params;
         const user = await userRepository.obtenerPorId(id);
         if (!user) return res.status(404).json({ error: 'Usuario no encontrado' });
+        setCache(req.cacheKey, user).catch(console.error);
         return res.status(200).json(user);
     } catch (error) {
         console.error(error);
@@ -26,6 +29,7 @@ const getAllUsers = async (req, res) => {
     try {
         const { id } = req.params;
         const userPosts = await userRepository.obtenerPostsDeUsuario(id);
+        setCache(req.cacheKey, userPosts).catch(console.error);
         return res.status(200).json(userPosts);
     } catch (error) {
         console.error(error);
@@ -72,6 +76,7 @@ const getAllUsers = async (req, res) => {
         const { id } = req.params;
         const userProfile = await userRepository.obtenerPerfilConSeguidores(id);
         if (!userProfile) return res.status(404).json({ error: 'Perfil no encontrado' });
+        setCache(req.cacheKey, userProfile).catch(console.error);
         return res.status(200).json(userProfile);
     } catch (error) {
         console.error(error);
