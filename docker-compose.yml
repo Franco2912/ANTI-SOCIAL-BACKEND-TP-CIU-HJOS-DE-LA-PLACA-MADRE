@@ -12,7 +12,7 @@ services:
       test: ["CMD", "mongosh", "-u", "admin", "-p", "admin1234", "--authenticationDatabase", "admin", "--eval", "db.adminCommand('ping')"]
       interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 10
     networks:
       - mongo-net
 
