@@ -1,6 +1,6 @@
 const tagRepository = require('../repositories/tag.repository');
-const { setCache } = require('../services/redis.service');
 const asyncHandler = require('../middlewares/asyncHandler');
+const setCacheAndResponseData = require('../utils/setCacheAndResponse')
 
 const DEFAULT_PAGE = 1;
 const DEFAULT_LIMIT = 20;
@@ -37,10 +37,8 @@ const getAllTags = asyncHandler(
             },
         };
 
-        setCache(req.cacheKey, response).catch(console.error);
 
-        return res.status(200).json(response);
-    
+        return setCacheAndResponseData(req, res, response)
     }
 );
 

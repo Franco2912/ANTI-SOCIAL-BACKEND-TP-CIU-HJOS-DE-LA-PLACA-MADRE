@@ -1,14 +1,14 @@
 const userRepository = require('../repositories/user.repository');
-const { setCache } = require('../services/redis.service');
 const asyncHandler = require('../middlewares/asyncHandler');
 const { findResourceOrFail } = require ('../utils/findResourceOrFail')
+const setCacheAndResponseData = require('../utils/setCacheAndResponse')
 
 const getAllUsers = asyncHandler(
     async (req, res) => {
+
         const users = await userRepository.obtenerTodos();
-    
-        setCache(req.cacheKey, users).catch(console.error);
-        return res.status(200).json(users);
+        
+        return setCacheAndResponseData(req, res, users)
     }
 )
 
@@ -16,10 +16,8 @@ const getUserById = asyncHandler(
     async (req, res) => {
         const { id } = req.params;
         const user = await findResourceOrFail(userRepository, id, 'Usuario')
-   
-        setCache(req.cacheKey, user).catch(console.error);
-
-        return res.status(200).json(user);
+        
+        return setCacheAndResponseData(req, res, user)       
     }
 )
 
@@ -28,9 +26,7 @@ const getPostsByUserId = asyncHandler(
         const { id } = req.params;
         const userPosts = await userRepository.obtenerPostsDeUsuario(id);
 
-        setCache(req.cacheKey, userPosts).catch(console.error);
-
-        return res.status(200).json(userPosts);    
+        return setCacheAndResponseData(req, res, userPosts)
     }
 )
 
@@ -67,9 +63,7 @@ const getUserProfileById = asyncHandler(
             const { id } = req.params;
             const userProfile = await findResourceOrFail(userRepository,id,'Perfil') 
 
-            setCache(req.cacheKey, userProfile).catch(console.error);
-
-            return res.status(200).json(userProfile);
+            return setCacheAndResponseData(req, res, userProfile)    
     }
 )
 

@@ -1,8 +1,9 @@
 const commentRepository = require('../repositories/comment.repository');
-const {setCache} = require ('../services/redis.service');
+const userRepository = require('../repositories/user.repository');
+
 const asyncHandler = require('../middlewares/asyncHandler');
 const { findResourceOrFail } = require('../utils/findResourceOrFail');
-const userRepository = require('../repositories/user.repository');
+const setCacheAndResponseData = require('../utils/setCacheAndResponse')
 
 const getCommentsByPost = asyncHandler( 
     async (req, res) => {
@@ -11,9 +12,7 @@ const getCommentsByPost = asyncHandler(
                    
         const comments = await commentRepository.obtenerPorPost(post_id);      
 
-        setCache(req.cacheKey, comments).catch(console.error)        
-
-        return res.status(200).json(comments);
+        return setCacheAndResponseData(req, res, comments)
     }
 );
 

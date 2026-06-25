@@ -1,8 +1,9 @@
 const postRepository = require('../repositories/post.repository');
 const { descargarImagen, eliminarImagen } = require('../services/postimages.services');
-const {setCache} = require ('../services/redis.service');
+
 const asyncHandler = require('../middlewares/asyncHandler');
 const { findResourceOrFail } = require ('../utils/findResourceOrFail')
+const setCacheAndResponseData = require('../utils/setCacheAndResponse')
 
 // --- CONTROLADORES DE POSTS ---
 const getAllPosts = asyncHandler( 
@@ -10,9 +11,7 @@ const getAllPosts = asyncHandler(
     
         const posts = await postRepository.obtenerTodos();
 
-        setCache(req.cacheKey, posts).catch(console.error) 
-
-        return res.status(200).json(posts);    
+        return setCacheAndResponseData(req, res, posts)
     }
 );
 
@@ -21,11 +20,9 @@ const getPostById = asyncHandler(
     
         const { postId } = req.params;              
         
-        const post = await findResourceOrFail(postRepository, postId, 'Post')        
-       
-        setCache(req.cacheKey, post).catch(console.error)
+        const post = await findResourceOrFail(postRepository, postId, 'Post')     
         
-        return res.status(200).json(post);    
+        return setCacheAndResponseData(req, res, post)       
     }
 );
 
@@ -72,11 +69,9 @@ const deletePost = asyncHandler(
 const getAllImages = asyncHandler(
     async (req, res) => {
         const id = req.params.postId
-        const post = await findResourceOrFail(postRepository, id, 'Post' )            
+        const post = await findResourceOrFail(postRepository, id, 'Post' )
         
-        setCache(req.cacheKey, post.images).catch(console.error);
-
-        return res.status(200).json(post.images || []);    
+        return setCacheAndResponseData(req, res, post.images || [] )             
     }
 );
 
@@ -89,7 +84,7 @@ const getImageById = asyncHandler(
 
         if (!image) return res.status(404).json({ error: 'Imagen no encontrada' });
         
-        return res.status(200).json(image);    
+        return setCacheAndResponseData(req, res, image);    
     }
 );
 
@@ -200,9 +195,7 @@ const getAllTagsByPostId = asyncHandler(
         
         const tags = post?.tags || [];
 
-        setCache(req.cacheKey, tags).catch(console.error);
-        
-        return res.status(200).json(tags);    
+        return setCacheAndResponseData(req, res, tags)        
     }
 );
 
