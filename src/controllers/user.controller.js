@@ -1,7 +1,7 @@
 const userRepository = require('../repositories/user.repository');
 const asyncHandler = require('../middlewares/asyncHandler');
 const { findResourceOrFail } = require ('../utils/findResourceOrFail')
-const setCacheAndResponseData = require('../utils/setCacheAndResponse')
+const setCacheAndResponseData = require('../utils/setCacheAndResponseData')
 
 const getAllUsers = asyncHandler(
     async (req, res) => {

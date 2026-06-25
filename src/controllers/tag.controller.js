@@ -1,6 +1,6 @@
 const tagRepository = require('../repositories/tag.repository');
 const asyncHandler = require('../middlewares/asyncHandler');
-const setCacheAndResponseData = require('../utils/setCacheAndResponse')
+const setCacheAndResponseData = require('../utils/setCacheAndResponseData')
 
 const DEFAULT_PAGE = 1;
 const DEFAULT_LIMIT = 20;

@@ -3,7 +3,7 @@ const userRepository = require('../repositories/user.repository');
 
 const asyncHandler = require('../middlewares/asyncHandler');
 const { findResourceOrFail } = require('../utils/findResourceOrFail');
-const setCacheAndResponseData = require('../utils/setCacheAndResponse')
+const setCacheAndResponseData = require('../utils/setCacheAndResponseData')
 
 const getCommentsByPost = asyncHandler( 
     async (req, res) => {

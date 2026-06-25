@@ -3,7 +3,8 @@ const { descargarImagen, eliminarImagen } = require('../services/postimages.serv
 
 const asyncHandler = require('../middlewares/asyncHandler');
 const { findResourceOrFail } = require ('../utils/findResourceOrFail')
-const setCacheAndResponseData = require('../utils/setCacheAndResponse')
+const setCacheAndResponseData = require('../utils/setCacheAndResponseData')
+const findInArrayOrFail = require('../utils/findInArrayOrFail')
 
 // --- CONTROLADORES DE POSTS ---
 const getAllPosts = asyncHandler( 
@@ -80,9 +81,7 @@ const getImageById = asyncHandler(
         const id = req.params.postId
         const post = await findResourceOrFail(postRepository, id, 'Post') 
                 
-        const image = post.images.find(img => img._id.toString() === req.params.imageId);
-
-        if (!image) return res.status(404).json({ error: 'Imagen no encontrada' });
+        const image = findInArrayOrFail(post.images, img => img._id.toString() === req.params.imageId, 'Imagen')             
         
         return setCacheAndResponseData(req, res, image);    
     }
@@ -112,9 +111,7 @@ const putImages = asyncHandler(
     
         const { postId, imageId } = req.params;
         const post = await findResourceOrFail(postRepository, postId, 'Post')        
-        const image = post?.images.find(img => img._id.toString() === imageId);
-
-        if (!image) return res.status(404).json({ error: 'Imagen no encontrada' });
+        const image = findInArrayOrFail(post?.images, img => img._id.toString() === imageId, 'Imagen')      
 
         const urlVieja = image.url;
         const url = req.body.urlImages[0];
@@ -134,9 +131,7 @@ const deleteImage = asyncHandler(
     
         const { postId, imageId } = req.params
         const post = await findResourceOrFail(postRepository, postId, 'Post')
-        const image = post?.images.find(img => img._id.toString() === imageId)
-
-        if (!image) return res.status(404).json({ error: 'Imagen no encontrada' })
+        const image = findInArrayOrFail(post.images,img => img._id.toString() === imageId, 'Imagen')         
 
         await postRepository.eliminarImagen(postId, imageId)
         await eliminarImagen(image.url)
