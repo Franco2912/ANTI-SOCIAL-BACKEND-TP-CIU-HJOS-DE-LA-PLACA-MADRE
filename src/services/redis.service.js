@@ -6,7 +6,7 @@ const redisClient = redis.createClient({
   connectTimeout: 10000,
 });
 
-const TTL = Number(process.env.CACHE_TTL_SECONDS ?? 120)
+const TTL = Number(process.env.CACHE_TTL_SECONDS ?? 300)
 
 const initRedis = async () => {
     await redisClient.connect();

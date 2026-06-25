@@ -6,6 +6,7 @@ const checkCache = (keyBuilder) => {
   return async (req, res, next) => {
     try {
       const key = keyBuilder(req);
+      console.log(`[Cache Check] key generated: ${key}`);
 
       const data = await getCache(key);
 
@@ -18,6 +19,7 @@ const checkCache = (keyBuilder) => {
 
       // Guardo la key para que el controller la reutilice
       req.cacheKey = key;
+      console.log(`[Cache Key Set] req.cacheKey = ${req.cacheKey}`);
 
       next();
     } catch (error) {

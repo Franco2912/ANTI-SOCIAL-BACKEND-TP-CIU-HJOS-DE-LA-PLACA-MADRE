@@ -1,4 +1,5 @@
 const tagRepository = require('../repositories/tag.repository');
+const { setCache } = require('../services/redis.service');
 
 const DEFAULT_PAGE = 1;
 const DEFAULT_LIMIT = 20;
@@ -24,7 +25,7 @@ const getAllTags = async (req, res) => {
 
         const totalPages = total === 0 ? 0 : Math.ceil(total / limit);
 
-        return res.status(200).json({
+        const response = {
         data,
         pagination: {
             page,
@@ -32,7 +33,11 @@ const getAllTags = async (req, res) => {
             total,
             totalPages,
         },
-        });
+        };
+
+        setCache(req.cacheKey, response).catch(console.error);
+
+        return res.status(200).json(response);
     } catch (error) {
         console.error(error);
         return res.status(500).json({ error: 'Error del servidor' });

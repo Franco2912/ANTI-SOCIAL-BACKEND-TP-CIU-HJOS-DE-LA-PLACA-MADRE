@@ -29,16 +29,21 @@ const {checkCache, deleteCache} = require('../middlewares/redis.Middleware')
 /* ayuda tecnica de que hace cada middleware de redis:
 
     checkCache(() => 'posts'): guarda en el cache una lista con todos los posts
-    checkCache(req => `post_${req.params.postId}`) : guarda el post por el cual se esta consultando en el cache
-    deleteCache( () => 'posts' ) = borra la lista con todos los posts del cache
+    checkCache(req => `post_${req.params.postId}`) : guarda el post por el cual se esta consultando en el cache    
+    deleteCache(() => 'posts') = borra la lista con todos los posts del cache
     deleteCache(req => `post_${req.params.id}`) = borra del cache el post que se modifica o elimina
 
-    checkCache( req => `images_${req.params.postId}`) = guarda en el cache una lista de todas las fotos del post consultado
+    checkCache(req => `images_${req.params.postId}`) = guarda en el cache una lista de todas las fotos del post consultado
     deleteCache(req => `images_${req.params.postId}`) = borra la lista de fotos del post del cual se va a cambiar o borrar una o todas las fotos
     
-
+    checkCache(req => `tags_post_${req.params.postId}`) = guarda en el cache una lista de todos los tags asociados al post consultado
+    deleteCache(req => `tags_post_${req.params.postId}`) = borra el cache de tags del post cuando se agregan o quitan tags
+    
+    checkCache(req => `comments_${req.params.post_id}`) = guarda en el cache una lista de todos los comentarios asociados al post consultado
+    deleteCache(req => `comments_${req.params.post_id}`) = borra el cache de comentarios del post cuando se agregan, modifican o eliminan comentarios
 
 */
+
 // Obtener todos los posts
 router.get('/posts', checkCache(() => 'posts'), getAllPosts)
 
@@ -49,10 +54,10 @@ router.get('/post/:postId', validateExistsModel(Post, 'postId'), checkCache(req 
 router.post('/post', schemaValidator(schemaPost), deleteCache( () => 'posts' ) ,postNewPost)
 
 // Actualizar un post
-router.put('/post/:id', schemaValidator(schemaPost), validateExistsModel(Post), deleteCache( () => 'posts' ),  deleteCache(req => `post_${req.params.id}`), putPost)
+router.put('/post/:id', schemaValidator(schemaPost), validateExistsModel(Post), deleteCache( () => 'posts' ),  deleteCache(req => `post_${req.params.id}`), deleteCache(req => `tags_post_${req.params.id}`), deleteCache(req => `images_${req.params.id}`), deleteCache(req => `comments_${req.params.id}`), putPost)
 
 // Eliminar un post
-router.delete('/post/:id', validateExistsModel(Post), deleteCache( () => 'posts' ),  deleteCache(req => `post_${req.params.id}`),  deletePost)
+router.delete('/post/:id', validateExistsModel(Post), deleteCache( () => 'posts' ),  deleteCache(req => `post_${req.params.id}`), deleteCache(req => `tags_post_${req.params.id}`), deleteCache(req => `images_${req.params.id}`), deleteCache(req => `comments_${req.params.id}`), deletePost)
 
 
 // ------------------ RUTAS DE IMÁGENES ------------------
@@ -79,12 +84,12 @@ router.delete('/post/:postId/images', validateExistsModel(Post, 'postId'), delet
 // ------------------ RUTAS DE TAGS ------------------
 
 // Obtener todos los tags de un post
-router.get('/posts/:postId/tags', validateExistsModel(Post, 'postId'), getAllTagsByPostId)
+router.get('/post/:postId/tags', validateExistsModel(Post, 'postId'), checkCache(req => `tags_post_${req.params.postId}`), getAllTagsByPostId)
 
 // Agregar un tag al post 
-router.post('/posts/:postId/tags', validateExistsModel(Post, 'postId'), sanitizeTagName, addTag)
+router.post('/post/:postId/tags', validateExistsModel(Post, 'postId'), sanitizeTagName, deleteCache(req => `tags_post_${req.params.postId}`), addTag)
 
 // Eliminar un tag del post
-router.delete('/posts/:postId/tags/:tagName', validateExistsModel(Post, 'postId'), sanitizeTagName, validarTagByName, unlinkTag)
+router.delete('/post/:postId/tags/:tagName', validateExistsModel(Post, 'postId'), sanitizeTagName, validarTagByName, deleteCache(req => `tags_post_${req.params.postId}`), unlinkTag)
 
 module.exports = router

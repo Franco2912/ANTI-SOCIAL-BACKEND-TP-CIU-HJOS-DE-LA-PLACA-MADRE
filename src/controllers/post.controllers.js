@@ -222,7 +222,9 @@ const getAllPosts = async (req, res) => {
     try {
         const { postId } = req.params;
         const post = await postRepository.obtenerPorId(postId);
-        return res.status(200).json(post?.tags || []);
+        const tags = post?.tags || [];
+        setCache(req.cacheKey, tags).catch(console.error);
+        return res.status(200).json(tags);
     } catch (err) {
         console.error(err);
         return res.status(500).json({ error: 'Error del servidor' });
