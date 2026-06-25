@@ -2,6 +2,7 @@ const postRepository = require('../repositories/post.repository');
 const { descargarImagen, eliminarImagen } = require('../services/postimages.services');
 const {setCache} = require ('../services/redis.service');
 const asyncHandler = require('../middlewares/asyncHandler');
+const { findResourceOrFail } = require ('../utils/findResourceOrFail')
 
 // --- CONTROLADORES DE POSTS ---
 const getAllPosts = asyncHandler( 
@@ -18,10 +19,9 @@ const getAllPosts = asyncHandler(
 const getPostById = asyncHandler( 
     async (req, res) => {
     
-        const { postId } = req.params;        
-        const post = await postRepository.obtenerPorId(postId);
-
-        if (!post) return res.status(404).json({ error: 'Post no encontrado' });
+        const { postId } = req.params;              
+        
+        const post = await findResourceOrFail(postRepository, postId, 'Post')        
        
         setCache(req.cacheKey, post).catch(console.error)
         
@@ -53,10 +53,8 @@ const deletePost = asyncHandler(
     async (req, res) => {
     
         const { id } = req.params;
-        const post = await postRepository.obtenerPorId(id);
-
-        if (!post) return res.status(404).json({ error: 'Post no encontrado' });
-
+        const post = await findResourceOrFail(postRepository, id, 'Post') 
+            
         // Eliminamos del disco local las fotos asociadas antes de borrar el post
         if (post.images && post.images.length > 0) {
         for (const img of post.images) {
@@ -73,9 +71,8 @@ const deletePost = asyncHandler(
 
 const getAllImages = asyncHandler(
     async (req, res) => {
-    
-        const post = await postRepository.obtenerPorId(req.params.postId);
-        if (!post) return res.status(404).json({ error: 'Post no encontrado' });        
+        const id = req.params.postId
+        const post = await findResourceOrFail(postRepository, id, 'Post' )            
         
         setCache(req.cacheKey, post.images).catch(console.error);
 
@@ -85,11 +82,11 @@ const getAllImages = asyncHandler(
 
 const getImageById = asyncHandler( 
     async (req, res) => {    
-        const post = await postRepository.obtenerPorId(req.params.postId);
-
-        if (!post) return res.status(404).json({ error: 'Post no encontrado' });
-        
+        const id = req.params.postId
+        const post = await findResourceOrFail(postRepository, id, 'Post') 
+                
         const image = post.images.find(img => img._id.toString() === req.params.imageId);
+
         if (!image) return res.status(404).json({ error: 'Imagen no encontrada' });
         
         return res.status(200).json(image);    
@@ -119,7 +116,7 @@ const putImages = asyncHandler(
     async (req, res) => {
     
         const { postId, imageId } = req.params;
-        const post = await postRepository.obtenerPorId(postId);
+        const post = await findResourceOrFail(postRepository, postId, 'Post')        
         const image = post?.images.find(img => img._id.toString() === imageId);
 
         if (!image) return res.status(404).json({ error: 'Imagen no encontrada' });
@@ -140,24 +137,25 @@ const putImages = asyncHandler(
 const deleteImage = asyncHandler(
     async (req, res) => {
     
-        const { postId, imageId } = req.params;
-        const post = await postRepository.obtenerPorId(postId);
-        const image = post?.images.find(img => img._id.toString() === imageId);
+        const { postId, imageId } = req.params
+        const post = await findResourceOrFail(postRepository, postId, 'Post')
+        const image = post?.images.find(img => img._id.toString() === imageId)
 
-        if (!image) return res.status(404).json({ error: 'Imagen no encontrada' });
+        if (!image) return res.status(404).json({ error: 'Imagen no encontrada' })
 
-        await postRepository.eliminarImagen(postId, imageId);
-        await eliminarImagen(image.url);
-        await postRepository.actualizarFechaPost(postId);
+        await postRepository.eliminarImagen(postId, imageId)
+        await eliminarImagen(image.url)
+        await postRepository.actualizarFechaPost(postId)
        
-        return res.status(200).json({ message: 'Foto eliminada con éxito' });
+        return res.status(200).json({ message: 'Foto eliminada con éxito' })
     }
 );
 
 const deleteAllImages = asyncHandler( 
     async (req, res) => {
         const { postId } = req.params;
-        const post = await postRepository.obtenerPorId(postId);
+        const post = await findResourceOrFail(postRepository, postId, 'Post')      
+        
         if (!post || post.images.length === 0) return res.status(404).json({ message: "el post no tiene imagenes" });
 
         for (const image of post.images) {
@@ -198,7 +196,8 @@ const getAllTagsByPostId = asyncHandler(
     async (req, res) => {
     
         const { postId } = req.params;
-        const post = await postRepository.obtenerPorId(postId);
+        const post = await findResourceOrFail(postRepository, postId, 'Post') 
+        
         const tags = post?.tags || [];
 
         setCache(req.cacheKey, tags).catch(console.error);

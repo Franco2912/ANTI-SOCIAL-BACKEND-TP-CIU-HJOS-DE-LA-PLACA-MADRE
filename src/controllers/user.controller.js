@@ -1,6 +1,7 @@
 const userRepository = require('../repositories/user.repository');
 const { setCache } = require('../services/redis.service');
 const asyncHandler = require('../middlewares/asyncHandler');
+const { findResourceOrFail } = require ('../utils/findResourceOrFail')
 
 const getAllUsers = asyncHandler(
     async (req, res) => {
@@ -14,10 +15,8 @@ const getAllUsers = asyncHandler(
 const getUserById = asyncHandler(
     async (req, res) => {
         const { id } = req.params;
-        const user = await userRepository.obtenerPorId(id);
-
-        if (!user) return res.status(404).json({ error: 'Usuario no encontrado' });
-
+        const user = await findResourceOrFail(userRepository, id, 'Usuario')
+   
         setCache(req.cacheKey, user).catch(console.error);
 
         return res.status(200).json(user);
@@ -66,9 +65,7 @@ const deleteUser = asyncHandler(
 const getUserProfileById = asyncHandler( 
         async (req, res) => {
             const { id } = req.params;
-            const userProfile = await userRepository.obtenerPerfilConSeguidores(id);
-
-            if (!userProfile) return res.status(404).json({ error: 'Perfil no encontrado' });
+            const userProfile = await findResourceOrFail(userRepository,id,'Perfil') 
 
             setCache(req.cacheKey, userProfile).catch(console.error);
 
