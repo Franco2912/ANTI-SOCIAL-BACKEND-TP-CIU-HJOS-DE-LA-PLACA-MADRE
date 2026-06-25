@@ -1,8 +1,10 @@
 const commentRepository = require('../repositories/comment.repository');
 const {setCache} = require ('../services/redis.service');
+const asyncHandler = require('../middlewares/asyncHandler');
 
-const getCommentsByPost = async (req, res) => {
-    try {
+const getCommentsByPost = asyncHandler( 
+    async (req, res) => {
+    
         const { post_id } = req.params;             
                    
         const comments = await commentRepository.obtenerPorPost(post_id);      
@@ -10,19 +12,16 @@ const getCommentsByPost = async (req, res) => {
         setCache(req.cacheKey, comments).catch(console.error)        
 
         return res.status(200).json(comments);
-
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json({ error: 'Error del servidor' });
     }
-    };
+);
 
-    const postCommentByPost = async (req, res) => {
-    try {
+const postCommentByPost = asyncHandler( 
+    async (req, res) => {
         const { post_id } = req.params;
         const { idUser, contenido } = req.body;
 
         const user = await commentRepository.verificarUsuario(idUser);
+
         if (!user) {
         return res.status(404).json({ error: 'Usuario no encontrado' });
         }
@@ -31,14 +30,12 @@ const getCommentsByPost = async (req, res) => {
         await commentRepository.actualizarFechaPost(post_id);      
         
         return res.status(201).json({ message: 'Comentario creado exitosamente' });
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json({ error: 'Error del servidor' });
     }
-    };
+);
 
-    const putCommentByPost = async (req, res) => {
-    try {
+const putCommentByPost = asyncHandler(
+    async (req, res) => {
+    
         const { post_id, comment_id } = req.params;
         const { contenido } = req.body;
 
@@ -46,25 +43,20 @@ const getCommentsByPost = async (req, res) => {
         await commentRepository.actualizarFechaPost(post_id);      
         
         return res.status(200).json({ message: 'Comentario actualizado exitosamente' });
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json({ error: 'Error del servidor' });
     }
-    };
+);
 
-    const deleteCommentByPost = async (req, res) => {
-    try {
+const deleteCommentByPost = asyncHandler(
+    async (req, res) => {
         const { post_id, comment_id } = req.params;
 
         await commentRepository.eliminar(comment_id);
         await commentRepository.actualizarFechaPost(post_id);
                
         return res.status(200).json({ message: 'Comentario eliminado' });
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json({ error: 'Error del servidor' });
+    
     }
-    };
+);
 
     module.exports = {
     getCommentsByPost,

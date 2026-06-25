@@ -1,70 +1,63 @@
 const postRepository = require('../repositories/post.repository');
 const { descargarImagen, eliminarImagen } = require('../services/postimages.services');
 const {setCache} = require ('../services/redis.service');
+const asyncHandler = require('../middlewares/asyncHandler');
 
 // --- CONTROLADORES DE POSTS ---
-const getAllPosts = async (req, res) => {
-    try {
+const getAllPosts = asyncHandler( 
+    async (req, res) => {
+    
         const posts = await postRepository.obtenerTodos();
 
         setCache(req.cacheKey, posts).catch(console.error) 
 
-        return res.status(200).json(posts);
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json({ error: "error del Servidor" });
+        return res.status(200).json(posts);    
     }
-    };
+);
 
-    const getPostById = async (req, res) => {
-    try {
-        const { postId } = req.params;      
-
-
-        
+const getPostById = asyncHandler( 
+    async (req, res) => {
+    
+        const { postId } = req.params;        
         const post = await postRepository.obtenerPorId(postId);
+
         if (!post) return res.status(404).json({ error: 'Post no encontrado' });
        
         setCache(req.cacheKey, post).catch(console.error)
         
-        return res.status(200).json(post);
-    } catch (err) {
-        console.error(err);
-        return res.status(500).json({ error: 'Error del servidor' });
+        return res.status(200).json(post);    
     }
-    };
+);
 
-    const postNewPost = async (req, res) => {
-    try {
+const postNewPost = asyncHandler( 
+    async (req, res) => {
+    
         const post = await postRepository.crear(req.body);
         
         return res.status(201).json(post);
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json({ error: 'Error del servidor' });
+    
     }
-    };
+);
 
-    const putPost = async (req, res) => {
-    try {
+const putPost = asyncHandler(
+    async (req, res) => {
+    
         const { id } = req.params;
         const post = await postRepository.actualizar(id, req.body);
 
-        console.log(`[Cache Cleaned]: Se borró la caché de posts y del post ${id} por actualización`);
-        return res.status(200).json(post);
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json({ error: 'Error del servidor' });
+        return res.status(200).json(post);    
     }
-    };
+);
 
-    const deletePost = async (req, res) => {
-    try {
+const deletePost = asyncHandler(
+    async (req, res) => {
+    
         const { id } = req.params;
         const post = await postRepository.obtenerPorId(id);
+
         if (!post) return res.status(404).json({ error: 'Post no encontrado' });
 
-        // Eliminamos del disco local los archivos asociados antes de borrar el post
+        // Eliminamos del disco local las fotos asociadas antes de borrar el post
         if (post.images && post.images.length > 0) {
         for (const img of post.images) {
             await eliminarImagen(img.url);
@@ -72,47 +65,39 @@ const getAllPosts = async (req, res) => {
         }
         await postRepository.eliminar(id);
        
-        return res.status(200).json({ message: `el post fue eliminado` });
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json({ error: "Error de servidor" });
+        return res.status(200).json({ message: `el post fue eliminado` });    
     }
-    };
+);
 
-    // --- CONTROLADORES DE IMÁGENES ---
+// --- CONTROLADORES DE IMÁGENES ---
 
-    const getAllImages = async (req, res) => {
-    try {
+const getAllImages = asyncHandler(
+    async (req, res) => {
+    
         const post = await postRepository.obtenerPorId(req.params.postId);
-        if (!post) return res.status(404).json({ error: 'Post no encontrado' });
+        if (!post) return res.status(404).json({ error: 'Post no encontrado' });        
         
-        // guardamos la lista de imagenes en el cache
         setCache(req.cacheKey, post.images).catch(console.error);
 
-        return res.status(200).json(post.images || []);
-    } catch (err) {
-        console.error(err);
-        return res.status(500).json({ error: 'Error del servidor' });
+        return res.status(200).json(post.images || []);    
     }
-    };
+);
 
-    const getImageById = async (req, res) => {
-    try {
+const getImageById = asyncHandler( 
+    async (req, res) => {    
         const post = await postRepository.obtenerPorId(req.params.postId);
+
         if (!post) return res.status(404).json({ error: 'Post no encontrado' });
         
         const image = post.images.find(img => img._id.toString() === req.params.imageId);
         if (!image) return res.status(404).json({ error: 'Imagen no encontrada' });
         
-        return res.status(200).json(image);
-    } catch (err) {
-        console.error(err);
-        return res.status(500).json({ error: 'Error del servidor' });
+        return res.status(200).json(image);    
     }
-    };
+);
 
-    const postImages = async (req, res) => {
-    try {
+const postImages = asyncHandler(
+    async (req, res) => {    
         const { postId } = req.params;
         const { urlImages } = req.body;
         const newImages = [];
@@ -124,21 +109,19 @@ const getAllPosts = async (req, res) => {
         }
 
         await postRepository.agregarImagenes(postId, newImages);
-        await postRepository.actualizarFechaPost(postId);       
-      
-
-        return res.status(201).json({ message: 'Fotos agregadas correctamente' });
-    } catch (err) {
-        console.error(err);
-        return res.status(500).json({ err: 'Error del servidor' });
+        await postRepository.actualizarFechaPost(postId); 
+    
+        return res.status(201).json({ message: 'Fotos agregadas correctamente' });    
     }
-    };
+);
 
-    const putImages = async (req, res) => {
-    try {
+const putImages = asyncHandler(
+    async (req, res) => {
+    
         const { postId, imageId } = req.params;
         const post = await postRepository.obtenerPorId(postId);
         const image = post?.images.find(img => img._id.toString() === imageId);
+
         if (!image) return res.status(404).json({ error: 'Imagen no encontrada' });
 
         const urlVieja = image.url;
@@ -150,18 +133,17 @@ const getAllPosts = async (req, res) => {
         await eliminarImagen(urlVieja);
         await postRepository.actualizarFechaPost(postId);
 
-        return res.status(200).json({ message: "se modifico la imagen" });
-    } catch (err) {
-        console.error(err);
-        return res.status(500).json({ err: 'Error del servidor' });
+        return res.status(200).json({ message: "se modifico la imagen" });    
     }
-    };
+);
 
-    const deleteImage = async (req, res) => {
-    try {
+const deleteImage = asyncHandler(
+    async (req, res) => {
+    
         const { postId, imageId } = req.params;
         const post = await postRepository.obtenerPorId(postId);
         const image = post?.images.find(img => img._id.toString() === imageId);
+
         if (!image) return res.status(404).json({ error: 'Imagen no encontrada' });
 
         await postRepository.eliminarImagen(postId, imageId);
@@ -169,14 +151,11 @@ const getAllPosts = async (req, res) => {
         await postRepository.actualizarFechaPost(postId);
        
         return res.status(200).json({ message: 'Foto eliminada con éxito' });
-    } catch (err) {
-        console.error(err);
-        return res.status(500).json({ err: 'Error del servidor' });
     }
-    };
+);
 
-    const deleteAllImages = async (req, res) => {
-    try {
+const deleteAllImages = asyncHandler( 
+    async (req, res) => {
         const { postId } = req.params;
         const post = await postRepository.obtenerPorId(postId);
         if (!post || post.images.length === 0) return res.status(404).json({ message: "el post no tiene imagenes" });
@@ -189,20 +168,19 @@ const getAllPosts = async (req, res) => {
         await postRepository.actualizarFechaPost(postId);
 
         return res.status(200).json({ message: 'Todas las fotos del posteo fueron eliminadas' });
-    } catch (err) {
-        console.error(err);
-        return res.status(500).json({ err: 'Error del servidor' });
+    
     }
-    };
+);
 
-    // --- CONTROLADORES DE TAGS ---
+// --- CONTROLADORES DE TAGS ---
 
-    const addTag = async (req, res) => {
-    try {
+    const addTag = asyncHandler( 
+        async (req, res) => {
+    
         const { postId } = req.params;
         const { tagName } = req.body;
-
         const yaTieneTag = await postRepository.verificarSiTieneTag(postId, tagName);
+        
         if (yaTieneTag) {
         return res.status(200).json({ message: 'El post ya tiene este tag' });
         }
@@ -212,30 +190,30 @@ const getAllPosts = async (req, res) => {
        
 
         return res.status(201).json({ message: 'Tag agregado al post', tag: { nombre: tagName } });
-    } catch (err) {
-        console.error(err);
-        return res.status(500).json({ error: 'Error del servidor' });
+    
     }
-    };
+);
 
-    const getAllTagsByPostId = async (req, res) => {
-    try {
+const getAllTagsByPostId = asyncHandler(
+    async (req, res) => {
+    
         const { postId } = req.params;
         const post = await postRepository.obtenerPorId(postId);
         const tags = post?.tags || [];
-        setCache(req.cacheKey, tags).catch(console.error);
-        return res.status(200).json(tags);
-    } catch (err) {
-        console.error(err);
-        return res.status(500).json({ error: 'Error del servidor' });
-    }
-    };
 
-    const unlinkTag = async (req, res) => {
-    try {
+        setCache(req.cacheKey, tags).catch(console.error);
+        
+        return res.status(200).json(tags);    
+    }
+);
+
+const unlinkTag = asyncHandler(
+    async (req, res) => {
+    
         const { postId, tagName } = req.params;
 
         const tieneTag = await postRepository.verificarSiTieneTag(postId, tagName);
+        
         if (!tieneTag) {
         return res.status(409).json({ error: 'El tag no está vinculado a este post' });
         }
@@ -244,11 +222,8 @@ const getAllPosts = async (req, res) => {
         await postRepository.actualizarFechaPost(postId);      
 
         return res.status(200).json({ message: 'Tag desvinculado del post', tagRemoved: false });
-    } catch (err) {
-        console.error(err);
-        return res.status(500).json({ error: 'Error del servidor' });
     }
-    };
+);
 
     module.exports = {
     getPostById, getAllImages, getImageById, postImages, putImages, deleteImage, deleteAllImages,
