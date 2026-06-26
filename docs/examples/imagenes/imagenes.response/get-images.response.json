@@ -1,0 +1,16 @@
+[
+  {
+    "idPostImage": 1,
+    "idPost": 1,
+    "url": "https://example.com/images/foto1.jpg",
+    "createdAt": "2026-05-17T03:00:00.000Z",
+    "updatedAt": "2026-05-17T03:00:00.000Z"
+  },
+  {
+    "idPostImage": 2,
+    "idPost": 1,
+    "url": "https://example.com/images/foto2.jpg",
+    "createdAt": "2026-05-17T03:01:00.000Z",
+    "updatedAt": "2026-05-17T03:01:00.000Z"
+  }
+]

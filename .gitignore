@@ -1,0 +1,4 @@
+node_modules
+mongo_data/
+public/images/*
+!public/images/.gitkeep

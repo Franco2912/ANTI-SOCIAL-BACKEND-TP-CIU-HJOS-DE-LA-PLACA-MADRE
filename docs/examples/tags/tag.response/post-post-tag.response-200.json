@@ -1,0 +1,9 @@
+{
+  "message": "El post ya tiene este tag",
+  "tag": {
+    "idTag": 1,
+    "nombre": "javascript",
+    "createdAt": "2026-05-17T04:00:00.000Z",
+    "updatedAt": "2026-05-17T04:00:00.000Z"
+  }
+}

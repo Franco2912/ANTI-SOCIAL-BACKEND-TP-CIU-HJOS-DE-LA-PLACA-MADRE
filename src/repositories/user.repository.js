@@ -1,6 +1,7 @@
 const User = require('../db/models/User');
 const Post = require('../db/models/Post');
-const Comment = require('../db/models/Comment');
+const commentRepository = require('./comment.repository');
+const { eliminarImagen } = require('../services/postimages.services');
 
 class UserRepository {
     async obtenerTodos() {
@@ -23,23 +24,33 @@ class UserRepository {
         return await User.findByIdAndDelete(id);
     }
 
+    async eliminarConDependencias(id) {
+        const posts = await Post.find({ idUser: id }).select('_id images').lean();
+        const postIds = posts.map((post) => post._id);
+
+        await commentRepository.eliminarPorPosts(postIds);
+        await Post.deleteMany({ idUser: id });
+
+        await commentRepository.eliminarPorUsuario(id);
+
+        await User.updateMany(
+            { $or: [{ followers: id }, { following: id }] },
+            { $pull: { followers: id, following: id } }
+        );
+
+        // luca: Toma solo las imagenes existentes; algunos posts pueden no tener el array images definido.
+        const images = posts.flatMap((post) => post.images || []);
+        const deleteImagesPromises = images.map((image) => eliminarImagen(image.url));
+        await Promise.allSettled(deleteImagesPromises);
+
+        return await User.findByIdAndDelete(id);
+    }
+
     // Trae las publicaciones creadas por el usuario inyectando sus comentarios correspondientes
     async obtenerPostsDeUsuario(userId) {
-        const mesesLimite = Number.parseInt(process.env.COMMENT_EXPIRATION_MONTHS) || 6;
-        const fechaLimite = new Date();
-        fechaLimite.setMonth(fechaLimite.getMonth() - mesesLimite);
-
+        const fechaLimite = commentRepository.calcularFechaLimite();
         const posts = await Post.find({ idUser: userId }).lean();
-
-        for (let post of posts) {
-        post.Comments = await Comment.find({
-            idPost: post._id,
-            createdAt: { $gte: fechaLimite }
-        }).sort({ createdAt: -1 });
-
-        post.idPost = post._id;
-        }
-        return posts;
+        return await commentRepository.adjuntarComentariosAPosts(posts, fechaLimite);
     }
 
     // --- MÉTODOS DEL BONUS (Followers & Following) ---

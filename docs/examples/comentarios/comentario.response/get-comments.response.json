@@ -1,0 +1,17 @@
+[
+  {
+    "idComment": 1,
+    "idPost": 1,
+    "idUser": 2,
+    "contenido": "¡Muy buen post!",
+    "visible": true,
+    "createdAt": "2026-05-17T05:00:00.000Z",
+    "updatedAt": "2026-05-17T05:00:00.000Z",
+    "User": {
+      "idUser": 2,
+      "nickName": "jdoe",
+      "nombre": "Juan",
+      "apellido": "Doe"
+    }
+  }
+]

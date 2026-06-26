@@ -1,0 +1,32 @@
+[
+  {
+    "idPost": 1,
+    "idUser": 1,
+    "descripcion": "Post de ejemplo del usuario 1.",
+    "createdAt": "2026-05-17T02:06:07.000Z",
+    "updatedAt": "2026-05-17T02:06:07.000Z",
+    "Images": [],
+    "Tags": [],
+    "Comments": []
+  },
+  {
+    "idPost": 2,
+    "idUser": 1,
+    "descripcion": "Otro post de ejemplo del usuario 1.",
+    "createdAt": "2026-05-17T02:06:07.000Z",
+    "updatedAt": "2026-05-17T02:06:07.000Z",
+    "Images": [],
+    "Tags": [],
+    "Comments": []
+  },
+  {
+    "idPost": 3,
+    "idUser": 2,
+    "descripcion": "Post de ejemplo del usuario 2.",
+    "createdAt": "2026-05-17T02:06:07.000Z",
+    "updatedAt": "2026-05-17T02:06:07.000Z",
+    "Images": [],
+    "Tags": [],
+    "Comments": []
+  }
+]

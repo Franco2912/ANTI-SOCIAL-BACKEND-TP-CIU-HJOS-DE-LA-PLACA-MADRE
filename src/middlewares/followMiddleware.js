@@ -13,8 +13,8 @@ const validateFollow = async (req, res, next) => {
             return res.status(400).json({ error: 'Un usuario no puede seguirse a sí mismo' });
         }
 
-        const follower = await User.findByPk(idFollower);
-        const following = await User.findByPk(idFollowing);
+        const follower = await User.findById(idFollower);
+        const following = await User.findById(idFollowing);
 
         if (!follower || !following) {
             return res.status(404).json({ error: 'Uno o ambos usuarios no existen' });
