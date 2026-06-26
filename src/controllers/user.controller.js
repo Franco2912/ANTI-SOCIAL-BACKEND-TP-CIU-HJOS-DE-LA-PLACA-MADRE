@@ -57,7 +57,7 @@ const getAllUsers = async (req, res) => {
     const deleteUser = async (req, res) => {
     try {
         const { id } = req.params;
-        await userRepository.eliminar(id);
+        await userRepository.eliminarConDependencias(id);
         return res.status(200).json({ message: 'Usuario eliminado de la base de datos' });
     } catch (error) {
         console.error(error);
@@ -81,9 +81,9 @@ const getAllUsers = async (req, res) => {
 
     const followUser = async (req, res) => {
     try {
-        const { followerInstance, followingInstance } = req;
+        const { idFollower, idFollowing } = req.params;
 
-        await userRepository.seguir(followerInstance, followingInstance);
+        await userRepository.seguir(idFollower, idFollowing);
 
         return res.status(200).json({ 
         message: '¡Operación de seguimiento procesada con éxito!' 
@@ -96,9 +96,9 @@ const getAllUsers = async (req, res) => {
 
     const unfollowUser = async (req, res) => {
     try {
-        const { followerInstance, followingInstance } = req;
+        const { idFollower, idFollowing } = req.params;
 
-        await userRepository.dejarDeSeguir(followerInstance, followingInstance);
+        await userRepository.dejarDeSeguir(idFollower, idFollowing);
 
         return res.status(200).json({ message: "Dejaste de seguir a este usuario con éxito" });
     } catch (error) {
