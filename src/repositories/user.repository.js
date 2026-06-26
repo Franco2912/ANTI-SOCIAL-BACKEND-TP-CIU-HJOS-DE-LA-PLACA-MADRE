@@ -38,8 +38,8 @@ class UserRepository {
             { $pull: { followers: id, following: id } }
         );
 
-        // Eliminar las imágenes de los posts
-        const images = posts.map((post) => post.images).flat();
+        // luca: Toma solo las imagenes existentes; algunos posts pueden no tener el array images definido.
+        const images = posts.flatMap((post) => post.images || []);
         const deleteImagesPromises = images.map((image) => eliminarImagen(image.url));
         await Promise.allSettled(deleteImagesPromises);
 
