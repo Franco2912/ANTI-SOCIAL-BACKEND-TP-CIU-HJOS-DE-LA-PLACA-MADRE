@@ -50,7 +50,7 @@ const deleteUser = asyncHandler(
     async (req, res) => {
         const { id } = req.params;
 
-        await userRepository.eliminar(id);
+        await userRepository.eliminarConDependencias(id);
 
         return res.status(200).json({ message: 'Usuario eliminado de la base de datos' });
     }
@@ -61,7 +61,8 @@ const deleteUser = asyncHandler(
 const getUserProfileById = asyncHandler( 
         async (req, res) => {
             const { id } = req.params;
-            const userProfile = await findResourceOrFail(userRepository,id,'Perfil') 
+            const userProfile = await userRepository.obtenerPerfilConSeguidores(id);
+            if (!userProfile) return res.status(404).json({ error: 'Perfil no encontrado' }); 
 
             return setCacheAndResponseData(req, res, userProfile)    
     }
@@ -69,9 +70,9 @@ const getUserProfileById = asyncHandler(
 
 const followUser = asyncHandler(    
     async (req, res) => {    
-        const { followerInstance, followingInstance } = req;
+        const { idFollower, idFollowing } = req.params;
 
-        await userRepository.seguir(followerInstance, followingInstance);
+        await userRepository.seguir(idFollower, idFollowing);
 
         return res.status(200).json({message: '¡Operación de seguimiento procesada con éxito!'});
     }
@@ -80,9 +81,9 @@ const followUser = asyncHandler(
 const unfollowUser = asyncHandler( 
     async (req, res) => {
     
-        const { followerInstance, followingInstance } = req;
+        const { idFollower, idFollowing } = req.params;
 
-        await userRepository.dejarDeSeguir(followerInstance, followingInstance);
+        await userRepository.dejarDeSeguir(idFollower, idFollowing);
 
         return res.status(200).json({ message: "Dejaste de seguir a este usuario con éxito" });
     }
