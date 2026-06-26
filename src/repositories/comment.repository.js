@@ -46,6 +46,16 @@ class CommentRepository {
     async eliminar(commentId) {
         return await Comment.findByIdAndDelete(commentId);
     }
+
+    // Elimina comentarios en posts específicos
+    async eliminarPorPosts(postIds) {
+        return await Comment.deleteMany({ idPost: { $in: postIds } });
+    }
+
+    // Elimina comentarios creados por un usuario
+    async eliminarPorUsuario(userId) {
+        return await Comment.deleteMany({ idUser: userId });
+    }
 }
 
 module.exports = new CommentRepository();
