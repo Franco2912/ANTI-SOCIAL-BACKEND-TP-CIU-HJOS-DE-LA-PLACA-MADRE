@@ -35,6 +35,6 @@ const delCache = async (key) => {
 
 
 redisClient.on("error", (err) => console.log("Redis Client Error", err));
-redisClient.on("connect", () => console.log("Redis Client connecto OK"));
+redisClient.on("connect", () => console.log("Redis Client conectado OK"));
 
 module.exports = {initRedis, setCache, getCache, delCache};

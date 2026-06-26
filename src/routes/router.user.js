@@ -23,6 +23,9 @@ router.put('/usuario/:id', validateSchema(schemaUser), validateExistsModel(User)
 
 router.delete('/usuario/:id', validateExistsModel(User), deleteCache(() => 'usuarios'), deleteCache(req => `usuario_${req.params.id}`), deleteUser)
 
+
+// extra follows
+
 router.get('/usuario/:id/profile', validateExistsModel(User), checkCache(req => `usuario_profile_${req.params.id}`), getUserProfileById)
 
 router.post('/usuario/:idFollower/follow/:idFollowing', validateFollow, deleteCache(req => `usuario_profile_${req.params.idFollower}`), deleteCache(req => `usuario_profile_${req.params.idFollowing}`), followUser);
