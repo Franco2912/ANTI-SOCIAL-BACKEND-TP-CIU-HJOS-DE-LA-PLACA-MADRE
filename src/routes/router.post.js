@@ -66,7 +66,7 @@ router.delete('/post/:id', validateExistsModel(Post), deleteCache( () => 'posts'
 router.get('/post/:postId/images', validateExistsModel(Post, 'postId'), checkCache( req => `images_${req.params.postId}`) ,getAllImages)
 
 // Obtiene una imagen específica del post
-router.get('/post/:postId/image/:imageId', validateExistsModel(Post, 'postId'), getImageById)
+router.get('/post/:postId/image/:imageId', validateExistsModel(Post, 'postId'), checkCache(req => `image_${req.params.imageId}`), getImageById)
 
 // Agregar imágenes al post
 router.post('/post/:postId/images', validateExistsModel(Post, 'postId'),deleteCache(req => `images_${req.params.postId}`), deleteCache(req => `post_${req.params.postId}`), deleteCache( () => 'posts' ), postImages)

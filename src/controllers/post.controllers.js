@@ -5,6 +5,8 @@ const asyncHandler = require('../middlewares/asyncHandler');
 const { findResourceOrFail } = require ('../utils/findResourceOrFail')
 const setCacheAndResponseData = require('../utils/setCacheAndResponseData')
 const findInArrayOrFail = require('../utils/findInArrayOrFail')
+const processAndSaveImage = require('../utils/processAndSaveImage')
+const deleteMultipleImages = require('../utils/deleteMultipleImages')
 
 // --- CONTROLADORES DE POSTS ---
 const getAllPosts = asyncHandler( 
@@ -55,10 +57,9 @@ const deletePost = asyncHandler(
             
         // Eliminamos del disco local las fotos asociadas antes de borrar el post
         if (post.images && post.images.length > 0) {
-        for (const img of post.images) {
-            await eliminarImagen(img.url);
-            }
+           await deleteMultipleImages(post.images)
         }
+
         await postRepository.eliminar(id);
        
         return res.status(200).json({ message: `el post fue eliminado` });    
@@ -94,9 +95,9 @@ const postImages = asyncHandler(
         const newImages = [];
 
         for (const url of urlImages) {
-        const nombreArchivo = Date.now() + '-' + Math.random() + '.jpg';
-        await descargarImagen(url, nombreArchivo);
-        newImages.push({ url: `/images/${nombreArchivo}` });
+
+        newImages.push({ url: await processAndSaveImage(url) });
+
         }
 
         await postRepository.agregarImagenes(postId, newImages);
@@ -115,10 +116,9 @@ const putImages = asyncHandler(
 
         const urlVieja = image.url;
         const url = req.body.urlImages[0];
-        const nombreArchivo = Date.now() + 'mod-' + Math.random() + '.jpg';
-
-        await descargarImagen(url, nombreArchivo);
-        await postRepository.actualizarUrlImagen(postId, imageId, `/images/${nombreArchivo}`);
+        const rutaImagen = await processAndSaveImage(url,'mod')
+        
+        await postRepository.actualizarUrlImagen(postId, imageId, rutaImagen);
         await eliminarImagen(urlVieja);
         await postRepository.actualizarFechaPost(postId);
 
@@ -148,10 +148,8 @@ const deleteAllImages = asyncHandler(
         
         if (!post || post.images.length === 0) return res.status(404).json({ message: "el post no tiene imagenes" });
 
-        for (const image of post.images) {
-        await eliminarImagen(image.url);
-        }
-
+        await deleteMultipleImages(post.images)
+      
         await postRepository.eliminarTodasLasImagenes(postId);
         await postRepository.actualizarFechaPost(postId);
 
