@@ -14,9 +14,9 @@ class CommentRepository {
     // Simula el actualizarFechaPost_ que usabas en SQLite
     async actualizarFechaPost(postId) {
         return await Post.findByIdAndUpdate(
-        postId,
-        { updatedAt: new Date() },
-        { new: true }
+            postId,
+            { updatedAt: new Date() },
+            { new: true }
         );
     }
 
@@ -28,8 +28,8 @@ class CommentRepository {
         const fechaLimite = this.calcularFechaLimite();
 
         return await Comment.find({
-        idPost: postId,
-        createdAt: { $gte: fechaLimite } // Trae solo los mas nuevos que la fecha limite
+            idPost: postId,
+            createdAt: { $gte: fechaLimite } // Trae solo los mas nuevos que la fecha limite
         })
         .populate('idUser', 'idUser nickName') // Popula simulando los attributes del TP1
         .sort({ createdAt: -1 })
@@ -59,9 +59,9 @@ class CommentRepository {
 
     async actualizar(commentId, contenido) {
         return await Comment.findByIdAndUpdate(
-        commentId,
-        { contenido },
-        { new: true }
+            commentId,
+            { contenido },
+            { new: true }
         );
     }
 
