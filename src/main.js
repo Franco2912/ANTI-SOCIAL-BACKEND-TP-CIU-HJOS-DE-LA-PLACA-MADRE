@@ -17,7 +17,8 @@ const allowStartupWithoutDb = process.env.NODE_ENV !== 'production' || process.e
 
 app.use(cors({ origin: process.env.CORS_ORIGIN || 'http://localhost:5173' }));
 app.use(express.json());
-
+app.use(express.static('public'));
+app.use('/images', express.static('public/images'));
 app.use(postRoutes);
 app.use(userRoutes);
 app.use(commentRoutes);

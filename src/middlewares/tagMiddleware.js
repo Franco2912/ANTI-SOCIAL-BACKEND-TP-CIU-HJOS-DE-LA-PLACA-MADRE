@@ -1,7 +1,7 @@
 const sanitizeTagNameValue = (value) => {
     if (typeof value !== 'string') return value
 
-    const normalized = value.trim().toLowerCase()
+    const normalized = value.trim().toUpperCase()
     if (normalized === '') return normalized
 
     return normalized.split(/\s+/).join('-')
