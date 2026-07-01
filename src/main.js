@@ -3,6 +3,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
+const { initRedis } = require('./services/redis.service');
 
 
 const postRoutes = require('./routes/router.post');
@@ -10,7 +11,7 @@ const userRoutes = require('./routes/router.user');
 const commentRoutes = require('./routes/router.comment');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8080;
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/anti_social_net';
 const allowStartupWithoutDb = process.env.NODE_ENV !== 'production' || process.env.ALLOW_STARTUP_WITHOUT_DB === 'true';
 
@@ -27,6 +28,7 @@ app.use((req, res) => {
 
 const startServer = async () => {
     try {
+        await initRedis();
         await mongoose.connect(MONGO_URI, {
             serverSelectionTimeoutMS: 3000,
             socketTimeoutMS: 3000,
