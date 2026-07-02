@@ -66,6 +66,28 @@ const deletePost = asyncHandler(
     }
 );
 
+const addLike = asyncHandler(async (req, res) => {
+    const { postId, userId } = req.params;
+    const post = await postRepository.agregarLike(postId, userId);
+
+    return res.status(200).json({
+        likes: post.likedBy.length,
+        liked: true,
+        likedBy: post.likedBy.map(id => id.toString())
+    });
+});
+
+const removeLike = asyncHandler(async (req, res) => {
+    const { postId, userId } = req.params;
+    const post = await postRepository.quitarLike(postId, userId);
+
+    return res.status(200).json({
+        likes: post.likedBy.length,
+        liked: false,
+        likedBy: post.likedBy.map(id => id.toString())
+    });
+});
+
 // --- CONTROLADORES DE IMÁGENES ---
 
 const getAllImages = asyncHandler(
@@ -212,6 +234,6 @@ const unlinkTag = asyncHandler(
 
     module.exports = {
     getPostById, getAllImages, getImageById, postImages, putImages, deleteImage, deleteAllImages,
-    getAllPosts, postNewPost, putPost, deletePost,
+    getAllPosts, postNewPost, putPost, deletePost, addLike, removeLike,
     addTag, getAllTagsByPostId, unlinkTag
 };

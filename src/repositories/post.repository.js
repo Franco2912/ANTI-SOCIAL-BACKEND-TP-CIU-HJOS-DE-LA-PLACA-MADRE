@@ -3,6 +3,13 @@ const Comment = require('../db/models/Comment');
 
 class PostRepository {
 
+    normalizarLikes(post) {
+        if (!post) return post;
+        post.likedBy = (post.likedBy || []).map(userId => userId.toString());
+        post.likes = post.likedBy.length;
+        return post;
+    }
+
     async actualizarFechaPost(postId) {
         return await Post.findByIdAndUpdate(
         postId,
@@ -29,6 +36,7 @@ class PostRepository {
         
         // Mapeos para consistencia idPost
         post.idPost = post._id;
+        this.normalizarLikes(post);
         }
         return posts;
     }
@@ -47,7 +55,7 @@ class PostRepository {
         }).sort({ createdAt: -1 });
 
         post.idPost = post._id;
-        return post;
+        return this.normalizarLikes(post);
     }
 
     async crear(datosPost) {
@@ -60,6 +68,22 @@ class PostRepository {
 
     async eliminar(postId) {
         return await Post.findByIdAndDelete(postId);
+    }
+
+    async agregarLike(postId, userId) {
+        return await Post.findByIdAndUpdate(
+        postId,
+        { $addToSet: { likedBy: userId } },
+        { new: true }
+        );
+    }
+
+    async quitarLike(postId, userId) {
+        return await Post.findByIdAndUpdate(
+        postId,
+        { $pull: { likedBy: userId } },
+        { new: true }
+        );
     }
 
     // --- MÉTODOS PARA IMÁGENES EMBEBIDAS ---

@@ -2,6 +2,7 @@ const { Router } = require('express')
 const router = Router()
 
 const Post  = require('../db/models/Post')
+const User = require('../db/models/User')
 const {
     getPostById,
     getAllPosts,
@@ -17,6 +18,8 @@ const {
     addTag,
     getAllTagsByPostId,
     unlinkTag,
+    addLike,
+    removeLike,
 } = require('../controllers/post.controllers')
 
 const { validateExistsModel, validarTagByName } = require('../middlewares/genericMiddleware')
@@ -58,6 +61,10 @@ router.put('/post/:id', schemaValidator(schemaPost), validateExistsModel(Post), 
 
 // Eliminar un post
 router.delete('/post/:id', validateExistsModel(Post), deleteCache( () => 'posts' ),  deleteCache(req => `post_${req.params.id}`), deleteCache(req => `tags_post_${req.params.id}`), deleteCache(req => `images_${req.params.id}`), deleteCache(req => `comments_${req.params.id}`), deletePost)
+
+// Agregar o quitar el me gusta de un usuario. $addToSet evita duplicados.
+router.post('/post/:postId/like/:userId', validateExistsModel(Post, 'postId'), validateExistsModel(User, 'userId'), deleteCache(() => 'posts'), deleteCache(req => `post_${req.params.postId}`), addLike)
+router.delete('/post/:postId/like/:userId', validateExistsModel(Post, 'postId'), validateExistsModel(User, 'userId'), deleteCache(() => 'posts'), deleteCache(req => `post_${req.params.postId}`), removeLike)
 
 
 // ------------------ RUTAS DE IMÁGENES ------------------

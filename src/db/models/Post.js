@@ -28,6 +28,11 @@ const PostSchema = new mongoose.Schema({
     tags: [{
         type: String,
         trim: true
+    }],
+
+    likedBy: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
     }]
 
     }, {
@@ -53,9 +58,12 @@ const PostSchema = new mongoose.Schema({
         if (doc.Comments) {
             ret.Comments = doc.Comments;
         } else if (ret.Comments === undefined) {
-            ret.Comments = []; // 
+            ret.Comments = [];
         }
-        
+
+        ret.likes = ret.likedBy?.length || 0;
+        ret.likedBy = (ret.likedBy || []).map(userId => userId.toString());
+
         delete ret._id;
     }
 });
