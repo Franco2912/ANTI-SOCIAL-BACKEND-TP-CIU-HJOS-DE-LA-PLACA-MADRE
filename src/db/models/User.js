@@ -20,6 +20,11 @@ const UserSchema = new mongoose.Schema({
         trim: true,
         maxlength: [12, 'El apellido no puede superar los 12 caracteres']
     },
+    
+    fotoPerfil: {
+        type: String,
+        default: 'https://res.cloudinary.com/dxjv0gq2f/image/upload/v1690911681/placeholder-profile-picture_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1_1.png'
+    },
 
     // SEGUIDORES (Bonus): Array de IDs que apuntan a la misma colección User
     followers: [{
