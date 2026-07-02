@@ -43,7 +43,7 @@ const putUser = asyncHandler(
         const datosActualizados = req.body;
         if (req.file) {
             // Guardamos la ruta donde se guardó la imagen
-            datosActualizados.fotoPerfil = `/uploads/${req.file.filename}`;
+            datosActualizados.fotoPerfil = `/images/${req.file.filename}`;
         }
         console.log("Datos que se van a guardar en MongoDB:", datosActualizados);
 

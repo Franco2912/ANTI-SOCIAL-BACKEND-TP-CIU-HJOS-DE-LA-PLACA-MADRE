@@ -2,8 +2,8 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 
-// Ruta absoluta a la carpeta 'uploads' en la raíz del proyecto
-const uploadDir = path.join(__dirname, '../../uploads'); 
+// Ruta absoluta a la carpeta 'public/images'
+const uploadDir = path.join(__dirname, '../../public/images'); 
 
 // Aseguramos que la carpeta exista programáticamente
 if (!fs.existsSync(uploadDir)){

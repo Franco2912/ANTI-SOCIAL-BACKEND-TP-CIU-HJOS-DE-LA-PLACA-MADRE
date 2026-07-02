@@ -6,6 +6,8 @@ const mongoose = require('mongoose');
 const { initRedis } = require('./services/redis.service');
 
 
+
+
 const postRoutes = require('./routes/router.post');
 const userRoutes = require('./routes/router.user');
 const commentRoutes = require('./routes/router.comment');
@@ -27,7 +29,9 @@ app.use((req, res, next) => {
 });
 
 const path = require('path');
-app.use('/uploads', express.static('/app/uploads')); // Servir archivos estáticos desde la carpeta 'uploads'
+app.use('/uploads', express.static('/app/uploads'));
+
+app.use('/images', express.static(path.join(__dirname, '../public/images')));
 
 app.use(postRoutes);
 app.use(userRoutes);
