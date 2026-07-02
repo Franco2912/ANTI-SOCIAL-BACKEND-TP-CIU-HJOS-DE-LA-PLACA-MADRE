@@ -57,8 +57,8 @@ class UserRepository {
 
     async obtenerPerfilConSeguidores(id) {
         return await User.findById(id)
-        .select('nickName nombre apellido followers following')
-        .populate('followers', 'nickName') // Transforma los ObjectIds en objetos con nickName
+        .select('_id nickName nombre apellido fotoPerfil followers following')
+        .populate('followers', 'nickName')
         .populate('following', 'nickName')
         .lean();
     }
