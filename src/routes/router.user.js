@@ -6,6 +6,7 @@ const { validateExistsModel} = require('../middlewares/genericMiddleware')
 const { validateSchema } = require('../schemas/genericSchemaValidator')
 const { validateFollow, validateUnfollow } = require('../middlewares/followMiddleware')
 const { checkCache, deleteCache } = require('../middlewares/redis.Middleware')
+const upload = require('../middlewares/upload');
 
 const { schemaUser } = require('../schemas/user.schema')
 
@@ -19,7 +20,7 @@ router.get('/usuario/:id/posts', validateExistsModel(User), checkCache(req => `u
 
 router.post('/usuario', validateSchema(schemaUser), deleteCache(() => 'usuarios'), postUser)
 
-router.put('/usuario/:id', validateSchema(schemaUser), validateExistsModel(User), deleteCache(() => 'usuarios'), deleteCache(req => `usuario_${req.params.id}`), putUser)
+router.put('/usuario/:id', validateSchema(schemaUser), validateExistsModel(User), deleteCache(() => 'usuarios'), deleteCache(req => `usuario_${req.params.id}`), upload.single('fotoPerfil'),putUser)
 
 router.delete('/usuario/:id', validateExistsModel(User), deleteCache(() => 'usuarios'), deleteCache(req => `usuario_${req.params.id}`), deleteUser)
 
