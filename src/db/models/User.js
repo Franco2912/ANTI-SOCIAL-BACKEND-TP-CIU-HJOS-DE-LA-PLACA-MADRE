@@ -20,6 +20,11 @@ const UserSchema = new mongoose.Schema({
         trim: true,
         maxlength: [12, 'El apellido no puede superar los 12 caracteres']
     },
+    
+    fotoPerfil: {
+        type: String,
+        default: null
+    },
 
     // SEGUIDORES (Bonus): Array de IDs que apuntan a la misma colección User
     followers: [{

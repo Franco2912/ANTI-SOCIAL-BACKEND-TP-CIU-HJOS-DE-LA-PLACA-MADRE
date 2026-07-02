@@ -65,6 +65,9 @@ services:
 
   api:
     build: .
+    volumes:
+      - .:/app              # Esto sincroniza tu código
+      - ./uploads:/app/uploads # ESTA LÍNEA ES LA CLAVE
     ports:
       - "8080:8080"
     depends_on:

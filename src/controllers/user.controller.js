@@ -40,8 +40,14 @@ const postUser = asyncHandler(
 const putUser = asyncHandler(
     async (req, res) => {    
         const { id } = req.params;
-        const user = await userRepository.actualizar(id, req.body);
-        
+        const datosActualizados = req.body;
+        if (req.file) {
+            // Guardamos la ruta donde se guardó la imagen
+            datosActualizados.fotoPerfil = `/uploads/${req.file.filename}`;
+        }
+        console.log("Datos que se van a guardar en MongoDB:", datosActualizados);
+
+        const user = await userRepository.actualizar(id, datosActualizados);
         return res.status(200).json(user);
     }
 )

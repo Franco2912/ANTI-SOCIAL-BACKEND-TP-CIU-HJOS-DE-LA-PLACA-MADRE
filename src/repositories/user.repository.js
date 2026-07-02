@@ -17,7 +17,7 @@ class UserRepository {
     }
 
     async actualizar(id, datosActualizados) {
-        return await User.findByIdAndUpdate(id, datosActualizados, { new: true });
+        return await User.findByIdAndUpdate(id, { $set: datosActualizados }, { new: true });
     }
 
     async eliminar(id) {

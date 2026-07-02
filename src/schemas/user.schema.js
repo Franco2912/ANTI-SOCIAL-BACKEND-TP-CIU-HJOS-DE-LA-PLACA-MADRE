@@ -28,7 +28,8 @@ const schemaUser = Joi.object({
             'string.empty': 'El apellido no puede estar vacío',
             'string.max': 'El apellido no puede superar los 12 caracteres',
             'any.required': 'El apellido es un campo obligatorio'
-        })
+        }),
+    fotoPerfil: Joi.string().uri().optional()
 });
 
 module.exports = { schemaUser };
